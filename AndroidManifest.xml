@@ -1,14 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.keapler.remote.imageview"
-    android:versionCode="1"
-    android:versionName="1.0">
+    package="com.keapler.remote.imageview">
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="15" />
 
-    <application android:label="@string/app_name"
-        android:icon="@drawable/ic_launcher"
-        android:theme="@style/AppTheme">
-
+    <application>
     </application>
-
 </manifest>

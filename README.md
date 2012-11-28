@@ -1,4 +1,4 @@
-remote-image-view
+Remote ImageView
 =================
 
-Extracted RemoteImageView from [Ignition] (https://github.com/kaeppler/ignition) library without dependencies. Cache based on Android LruCache.
+RemoteImageView widget extracted from [Ignition] (https://github.com/kaeppler/ignition) library without dependencies. Cache based on Android LruCache.

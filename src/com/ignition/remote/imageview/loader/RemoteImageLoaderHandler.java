@@ -21,6 +21,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 public class RemoteImageLoaderHandler extends Handler {
@@ -32,6 +34,7 @@ public class RemoteImageLoaderHandler extends Handler {
     private ImageView imageView;
     private String imageUrl;
     private Drawable errorDrawable;
+    private int imageLoadedAnimationId = -1;
 
     public RemoteImageLoaderHandler(ImageView imageView, String imageUrl, Drawable errorDrawable) {
         this.imageView = imageView;
@@ -50,6 +53,10 @@ public class RemoteImageLoaderHandler extends Handler {
         this.imageView = imageView;
         this.imageUrl = imageUrl;
         this.errorDrawable = errorDrawable;
+    }
+
+    public void setImageLoadedAnimationId(int imageLoadedAnimationId) {
+        this.imageLoadedAnimationId = imageLoadedAnimationId;
     }
 
     @Override
@@ -81,10 +88,16 @@ public class RemoteImageLoaderHandler extends Handler {
         // otherwise it won't do anything.
         Object viewTag = imageView.getTag();
         if (imageUrl.equals(viewTag)) {
-            if (bitmap == null)
+            if (bitmap == null) {
                 imageView.setImageDrawable(errorDrawable);
-            else
+            } else {
                 imageView.setImageBitmap(bitmap);
+                if (imageLoadedAnimationId >= 0) {
+                    Animation animation = AnimationUtils.loadAnimation(imageView.getContext(),
+                            imageLoadedAnimationId);
+                    imageView.startAnimation(animation);
+                }
+            }
 
             // remove the image URL from the view's tag
             imageView.setTag(null);

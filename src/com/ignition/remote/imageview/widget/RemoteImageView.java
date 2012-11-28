@@ -85,6 +85,7 @@ public class RemoteImageView extends ImageView {
     private Drawable progressDrawable, errorDrawable;
 
     private Drawable dummyDrawable;
+    private int imageLoadedAnimationResId = R.anim.image_fade_in;
 
     private RemoteImageLoader imageLoader;
     private static RemoteImageLoader sharedImageLoader;
@@ -237,9 +238,9 @@ public class RemoteImageView extends ImageView {
         if (!TextUtils.isEmpty(imageUrl)) {
             showProgressView(true);
             if (dummyDrawable == null) {
-                imageLoader.loadImage(imageUrl, this, new DefaultImageLoaderHandler());
+                imageLoader.loadImage(imageUrl, this, new DefaultImageLoaderHandler(this));
             } else {
-                imageLoader.loadImage(imageUrl, this, dummyDrawable, new DefaultImageLoaderHandler());
+                imageLoader.loadImage(imageUrl, this, dummyDrawable, new DefaultImageLoaderHandler(this));
             }
         } else {
             reset();
@@ -252,9 +253,11 @@ public class RemoteImageView extends ImageView {
     }
 
     public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-        if (autoLoad) {
-            loadImage();
+        if (!TextUtils.equals(this.imageUrl, imageUrl)) {
+            this.imageUrl = imageUrl;
+            if (autoLoad) {
+                loadImage();
+            }
         }
     }
 
@@ -301,21 +304,25 @@ public class RemoteImageView extends ImageView {
         }
     }
 
-    private class DefaultImageLoaderHandler extends RemoteImageLoaderHandler {
+    private static class DefaultImageLoaderHandler extends RemoteImageLoaderHandler {
 
-        public DefaultImageLoaderHandler() {
-            super(RemoteImageView.this, imageUrl, errorDrawable);
+        private RemoteImageView imageView;
+
+        public DefaultImageLoaderHandler(RemoteImageView imageView) {
+            super(imageView, imageView.imageUrl, imageView.errorDrawable);
+            setImageLoadedAnimationId(imageView.imageLoadedAnimationResId);
+            this.imageView = imageView;
         }
 
         @Override
         protected boolean handleImageLoaded(Bitmap bitmap, Message msg) {
             boolean wasUpdated = super.handleImageLoaded(bitmap, msg);
             if (wasUpdated) {
-                state = STATE_LOADED;
-                if (listener != null) {
-                    listener.onImageLoaded(bitmap);
+                imageView.state = STATE_LOADED;
+                if (imageView.listener != null) {
+                    imageView.listener.onImageLoaded(bitmap);
                 }
-                showProgressView(false);
+                imageView.showProgressView(false);
             }
             return wasUpdated;
         }
@@ -392,5 +399,9 @@ public class RemoteImageView extends ImageView {
      */
     public void setRemoteImageViewListener(RemoteImageViewListener listener) {
         this.listener = listener;
+    }
+
+    public void setImageLoadedAnimationResId(int imageLoadedAnimationResId) {
+        this.imageLoadedAnimationResId = imageLoadedAnimationResId;
     }
 }

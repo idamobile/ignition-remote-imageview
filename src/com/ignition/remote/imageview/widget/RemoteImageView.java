@@ -288,6 +288,7 @@ public class RemoteImageView extends ImageView {
     public void reset() {
         showProgressView(false);
         setTag(null);
+        this.imageUrl = null;
     }
 
     private void showProgressView(boolean show) {

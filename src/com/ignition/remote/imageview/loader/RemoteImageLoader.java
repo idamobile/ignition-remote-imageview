@@ -15,14 +15,13 @@
 
 package com.ignition.remote.imageview.loader;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
-
 import com.ignition.remote.imageview.cache.ImageCache;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Realizes a background image loader that downloads an image from a URL, optionally backed by a
@@ -203,6 +202,7 @@ public class RemoteImageLoader {
      */
     public void loadImage(String imageUrl, ImageView imageView, Drawable dummyDrawable,
             RemoteImageLoaderHandler handler) {
+        boolean inMemoryCache = imageCache != null && imageCache.containsKeyInMemory(imageUrl);
         if (imageView != null) {
             if (imageUrl == null) {
                 // In a ListView views are reused, so we must be sure to remove the tag that could
@@ -217,13 +217,15 @@ public class RemoteImageLoader {
             if (!imageUrl.equals(oldImageUrl)) {
                 if (dummyDrawable != null) {
                     // Set the dummy image while waiting for the actual image to be downloaded.
-                    imageView.setImageDrawable(dummyDrawable);
+                    if (!inMemoryCache) {
+                        imageView.setImageDrawable(dummyDrawable);
+                    }
                 }
                 imageView.setTag(imageUrl);
             }
         }
 
-        if (imageCache != null && imageCache.containsKeyInMemory(imageUrl)) {
+        if (inMemoryCache) {
             // do not go through message passing, handle directly instead
             handler.handleImageLoaded(imageCache.getBitmap(imageUrl), null);
         } else {

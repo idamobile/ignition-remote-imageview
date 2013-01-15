@@ -15,15 +15,10 @@
 
 package com.ignition.remote.imageview.cache;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+
+import java.io.*;
 
 /**
  * Implements a cache capable of caching image files. It exposes helper methods to immediately
@@ -32,7 +27,7 @@ import android.graphics.BitmapFactory;
  * @author Matthias Kaeppler
  * 
  */
-public class ImageCache extends AbstractCache<String, byte[]> {
+public class ImageCache extends AbstractCache<String, Bitmap> {
 
     public ImageCache(int initialCapacity, long expirationInMinutes, int maxConcurrentThreads) {
         super("ImageCache", initialCapacity, expirationInMinutes, maxConcurrentThreads);
@@ -48,20 +43,24 @@ public class ImageCache extends AbstractCache<String, byte[]> {
     }
 
     @Override
-    protected byte[] readValueFromDisk(File file) throws IOException {
+    public synchronized Bitmap get(Object elementKey) {
+        Bitmap result = super.get(elementKey);
+        if (result != null && result.isRecycled()) {
+            remove(elementKey);
+            return get(elementKey);
+        }
+        return result;
+    }
+
+    @Override
+    protected Bitmap readValueFromDisk(File file) throws IOException {
         BufferedInputStream istream = new BufferedInputStream(new FileInputStream(file));
         try {
             long fileSize = file.length();
             if (fileSize > Integer.MAX_VALUE) {
                 throw new IOException("Cannot read files larger than " + Integer.MAX_VALUE + " bytes");
             }
-
-            int imageDataLength = (int) fileSize;
-
-            byte[] imageData = new byte[imageDataLength];
-            istream.read(imageData, 0, imageDataLength);
-            istream.close();
-            return imageData;
+            return BitmapFactory.decodeStream(istream);
         } finally {
             if (istream != null) {
                 try {
@@ -73,24 +72,26 @@ public class ImageCache extends AbstractCache<String, byte[]> {
     }
 
     @Override
-    protected int getSizeOf(String key, byte[] value) {
-        return value.length;
+    protected int getSizeOf(String key, Bitmap value) {
+        return value.getRowBytes();
     }
 
     public synchronized Bitmap getBitmap(Object elementKey) {
-        byte[] imageData = super.get(elementKey);
-        if (imageData == null) {
-            return null;
-        }
-        return BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
+        return get(elementKey);
     }
 
     @Override
-    protected void writeValueToDisk(File file, byte[] imageData) throws IOException {
-        BufferedOutputStream ostream = new BufferedOutputStream(new FileOutputStream(file));
-
-        ostream.write(imageData);
-
-        ostream.close();
+    protected void writeValueToDisk(File file, Bitmap imageData) throws IOException {
+        if (imageData != null && !imageData.isRecycled()) {
+            BufferedOutputStream ostream = null;
+            try {
+                ostream = new BufferedOutputStream(new FileOutputStream(file));
+                imageData.compress(Bitmap.CompressFormat.PNG, 90, ostream);
+            } finally {
+                if (ostream != null) {
+                    ostream.close();
+                }
+            }
+        }
     }
 }

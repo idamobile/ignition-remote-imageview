@@ -1,19 +1,18 @@
 package com.ignition.remote.imageview.loader;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.SystemClock;
 import android.util.Log;
-
 import com.ignition.remote.imageview.cache.ImageCache;
+
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class RemoteImageLoaderJob implements Runnable {
 
@@ -69,7 +68,7 @@ public class RemoteImageLoaderJob implements Runnable {
                 }
 
                 if (imageCache != null) {
-                    imageCache.put(imageUrl, imageData);
+                    imageCache.put(imageUrl, BitmapFactory.decodeByteArray(imageData, 0, imageData.length));
                 }
 
                 return BitmapFactory.decodeByteArray(imageData, 0, imageData.length);

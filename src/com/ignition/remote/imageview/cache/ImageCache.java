@@ -17,6 +17,7 @@ package com.ignition.remote.imageview.cache;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import java.io.*;
 
@@ -44,12 +45,17 @@ public class ImageCache extends AbstractCache<String, Bitmap> {
 
     @Override
     public synchronized Bitmap get(Object elementKey) {
-        Bitmap result = super.get(elementKey);
-        if (result != null && result.isRecycled()) {
-            remove(elementKey);
-            return get(elementKey);
+        try {
+            Bitmap result = super.get(elementKey);
+            if (result != null && result.isRecycled()) {
+                remove(elementKey);
+                return get(elementKey);
+            }
+            return result;
+        } catch (OutOfMemoryError er) {
+            Log.d(ImageCache.class.getSimpleName(), "image too large", er);
+            return null;
         }
-        return result;
     }
 
     @Override

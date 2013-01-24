@@ -310,7 +310,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
         Long time = entriesTime.get(elementKey);
         if (time != null) {
             long cur = SystemClock.elapsedRealtime();
-            long diff = cur - time / (60 * 1000);
+            long diff = (cur - time) / (60 * 1000);
             return diff < 0 || diff >= expirationInMinutes;
         } else {
             return true;

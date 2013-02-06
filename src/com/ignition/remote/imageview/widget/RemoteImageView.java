@@ -33,6 +33,7 @@ import android.widget.RelativeLayout;
 import android.widget.ViewSwitcher;
 
 import com.ignition.remote.imageview.Ignition;
+import com.ignition.remote.imageview.cache.ImageCache;
 import com.ignition.remote.imageview.loader.RemoteImageLoader;
 import com.ignition.remote.imageview.loader.RemoteImageLoaderHandler;
 import com.keapler.remote.imageview.R;
@@ -236,11 +237,16 @@ public class RemoteImageView extends ImageView {
      */
     public void loadImage() {
         if (!TextUtils.isEmpty(imageUrl)) {
-            showProgressView(true);
-            if (dummyDrawable == null) {
-                imageLoader.loadImage(imageUrl, this, new DefaultImageLoaderHandler(this));
+            Bitmap imageFromCache = imageLoader.getImageFromCacheIfContains(imageUrl);
+            if (imageFromCache != null) {
+                setImageBitmap(imageFromCache);
             } else {
-                imageLoader.loadImage(imageUrl, this, dummyDrawable, new DefaultImageLoaderHandler(this));
+                showProgressView(true);
+                if (dummyDrawable == null) {
+                    imageLoader.loadImage(imageUrl, this, new DefaultImageLoaderHandler(this));
+                } else {
+                    imageLoader.loadImage(imageUrl, this, dummyDrawable, new DefaultImageLoaderHandler(this));
+                }
             }
         } else {
             reset();

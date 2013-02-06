@@ -16,6 +16,7 @@
 package com.ignition.remote.imageview.loader;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 import com.ignition.remote.imageview.cache.ImageCache;
@@ -202,7 +203,7 @@ public class RemoteImageLoader {
      */
     public void loadImage(String imageUrl, ImageView imageView, Drawable dummyDrawable,
             RemoteImageLoaderHandler handler) {
-        boolean inMemoryCache = imageCache != null && imageCache.containsKeyInMemory(imageUrl);
+        boolean inMemoryCache = isInMemoryCache(imageUrl);
         if (imageView != null) {
             if (imageUrl == null) {
                 // In a ListView views are reused, so we must be sure to remove the tag that could
@@ -231,6 +232,18 @@ public class RemoteImageLoader {
         } else {
             executor.execute(new RemoteImageLoaderJob(imageUrl, handler, imageCache, numRetries,
                     defaultBufferSize));
+        }
+    }
+
+    public boolean isInMemoryCache(String imageUrl) {
+        return imageCache != null && imageCache.containsKeyInMemory(imageUrl);
+    }
+
+    public Bitmap getImageFromCacheIfContains(String imageUrl) {
+        if (isInMemoryCache(imageUrl)) {
+            return imageCache.get(imageUrl);
+        } else {
+            return null;
         }
     }
 }

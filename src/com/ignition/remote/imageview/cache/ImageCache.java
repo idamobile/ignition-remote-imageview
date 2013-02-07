@@ -44,7 +44,18 @@ public class ImageCache extends AbstractCache<String, Bitmap> {
     }
 
     @Override
-    public synchronized Bitmap get(Object elementKey) {
+    public boolean containsKeyInMemory(Object key) {
+        if (super.containsKeyInMemory(key)) {
+            Bitmap result = super.get(key);
+            if (result != null && !result.isRecycled()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public Bitmap get(Object elementKey) {
         try {
             Bitmap result = super.get(elementKey);
             if (result != null && result.isRecycled()) {

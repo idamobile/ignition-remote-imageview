@@ -237,16 +237,11 @@ public class RemoteImageView extends ImageView {
      */
     public void loadImage() {
         if (!TextUtils.isEmpty(imageUrl)) {
-            Bitmap imageFromCache = imageLoader.getImageFromCacheIfContains(imageUrl);
-            if (imageFromCache != null) {
-                setImageBitmap(imageFromCache);
+            showProgressView(true);
+            if (dummyDrawable == null) {
+                imageLoader.loadImage(imageUrl, this, new DefaultImageLoaderHandler(this));
             } else {
-                showProgressView(true);
-                if (dummyDrawable == null) {
-                    imageLoader.loadImage(imageUrl, this, new DefaultImageLoaderHandler(this));
-                } else {
-                    imageLoader.loadImage(imageUrl, this, dummyDrawable, new DefaultImageLoaderHandler(this));
-                }
+                imageLoader.loadImage(imageUrl, this, dummyDrawable, new DefaultImageLoaderHandler(this));
             }
         } else {
             reset();
@@ -322,8 +317,8 @@ public class RemoteImageView extends ImageView {
         }
 
         @Override
-        protected boolean handleImageLoaded(Bitmap bitmap, Message msg) {
-            boolean wasUpdated = super.handleImageLoaded(bitmap, msg);
+        protected boolean handleImageLoaded(Bitmap bitmap, Message msg, boolean animated) {
+            boolean wasUpdated = super.handleImageLoaded(bitmap, msg, animated);
             if (wasUpdated) {
                 imageView.state = STATE_LOADED;
                 if (imageView.listener != null) {

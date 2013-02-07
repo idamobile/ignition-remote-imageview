@@ -51,7 +51,7 @@ public class RemoteImageLoader {
     private Drawable defaultDummyDrawable, errorDrawable;
 
     public RemoteImageLoader(Context context) {
-        this(context, true);
+        this(context, true, DEFAULT_TTL_MINUTES);
     }
 
     /**
@@ -65,7 +65,8 @@ public class RemoteImageLoader {
      * @param createCache
      *            whether to create a default {@link ImageCache} used for caching
      */
-    public RemoteImageLoader(Context context, boolean createCache) {
+    public RemoteImageLoader(Context context, boolean createCache, int expirationInMinutes) {
+        this.expirationInMinutes = expirationInMinutes;
         executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(DEFAULT_POOL_SIZE);
         if (createCache) {
             imageCache = new ImageCache(5 * 1024 * 1024, expirationInMinutes, DEFAULT_POOL_SIZE);
@@ -123,7 +124,7 @@ public class RemoteImageLoader {
      */
     public void clearImageCache() {
         if (imageCache != null) {
-            imageCache.clear();
+            imageCache.clear(false);
         }
     }
 
@@ -228,7 +229,7 @@ public class RemoteImageLoader {
 
         if (inMemoryCache) {
             // do not go through message passing, handle directly instead
-            handler.handleImageLoaded(imageCache.getBitmap(imageUrl), null);
+            handler.handleImageLoaded(imageCache.getBitmap(imageUrl), null, false);
         } else {
             executor.execute(new RemoteImageLoaderJob(imageUrl, handler, imageCache, numRetries,
                     defaultBufferSize));

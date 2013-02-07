@@ -258,7 +258,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
      */
     @Override
     @SuppressWarnings("unchecked")
-    public synchronized ValT get(Object elementKey) {
+    public ValT get(Object elementKey) {
         KeyT key = (KeyT) elementKey;
         ValT value = cache.get(key);
         if (value != null) {
@@ -322,7 +322,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
      * the disk, which may introduce a performance penalty.
      */
     @Override
-    public synchronized ValT put(KeyT key, ValT value) {
+    public ValT put(KeyT key, ValT value) {
         if (isDiskCacheEnabled) {
             cacheToDisk(key, value);
         }
@@ -332,7 +332,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
     }
 
     @Override
-    public synchronized void putAll(Map<? extends KeyT, ? extends ValT> t) {
+    public void putAll(Map<? extends KeyT, ? extends ValT> t) {
         throw new UnsupportedOperationException();
     }
 
@@ -345,7 +345,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
      * @return true if the value is cached in memory or on disk, false otherwise
      */
     @Override
-    public synchronized boolean containsKey(Object key) {
+    public boolean containsKey(Object key) {
         return containsKeyInMemory(key) || containsKeyOnDisk(key);
     }
 
@@ -357,7 +357,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
      * @return true if the value is currently hold in memory, false otherwise
      */
     @SuppressWarnings("unchecked")
-    public synchronized boolean containsKeyInMemory(Object key) {
+    public boolean containsKeyInMemory(Object key) {
         return cache.get((KeyT) key) != null && !expired(key);
     }
 
@@ -370,7 +370,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
      *         cache is disabled.
      */
     @SuppressWarnings("unchecked")
-    public synchronized boolean containsKeyOnDisk(Object key) {
+    public boolean containsKeyOnDisk(Object key) {
         return isDiskCacheEnabled && getFileForKey((KeyT) key).exists();
     }
 
@@ -379,7 +379,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
      * does NOT probe the disk cache.
      */
     @Override
-    public synchronized boolean containsValue(Object value) {
+    public boolean containsValue(Object value) {
         return entriesTime.containsValue(value);
     }
 
@@ -388,7 +388,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
      */
     @Override
     @SuppressWarnings("unchecked")
-    public synchronized ValT remove(Object key) {
+    public ValT remove(Object key) {
         ValT value = removeKey(key);
 
         if (isDiskCacheEnabled) {
@@ -425,12 +425,12 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
     }
 
     @Override
-    public synchronized int size() {
+    public int size() {
         return cache.size();
     }
 
     @Override
-    public synchronized boolean isEmpty() {
+    public boolean isEmpty() {
         return cache.size() == 0;
     }
 
@@ -471,7 +471,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
      * Clears the entire cache (memory and disk).
      */
     @Override
-    public synchronized void clear() {
+    public void clear() {
         clear(isDiskCacheEnabled);
     }
 
@@ -482,7 +482,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
      * @param removeFromDisk
      *            whether or not to wipe the disk cache, too
      */
-    public synchronized void clear(boolean removeFromDisk) {
+    public void clear(boolean removeFromDisk) {
         cache.evictAll();
 
         if (removeFromDisk && isDiskCacheEnabled) {

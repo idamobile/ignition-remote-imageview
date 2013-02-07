@@ -69,7 +69,7 @@ public class RemoteImageLoaderHandler extends Handler {
     protected final void handleImageLoadedMessage(Message msg) {
         Bundle data = msg.getData();
         Bitmap bitmap = data.getParcelable(BITMAP_EXTRA);
-        handleImageLoaded(bitmap, msg);
+        handleImageLoaded(bitmap, msg, true);
     }
 
     /**
@@ -82,7 +82,7 @@ public class RemoteImageLoaderHandler extends Handler {
      *            the handler message; can be null
      * @return true if the view was updated with the new image, false if it was discarded
      */
-    protected boolean handleImageLoaded(Bitmap bitmap, Message msg) {
+    protected boolean handleImageLoaded(Bitmap bitmap, Message msg, boolean animated) {
         // If this handler is used for loading images in a ListAdapter,
         // the thread will set the image only if it's the right position,
         // otherwise it won't do anything.
@@ -92,7 +92,7 @@ public class RemoteImageLoaderHandler extends Handler {
                 imageView.setImageDrawable(errorDrawable);
             } else {
                 imageView.setImageBitmap(bitmap);
-                if (imageLoadedAnimationId >= 0) {
+                if (animated && imageLoadedAnimationId >= 0) {
                     Animation animation = AnimationUtils.loadAnimation(imageView.getContext(),
                             imageLoadedAnimationId);
                     imageView.startAnimation(animation);

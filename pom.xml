@@ -7,9 +7,9 @@
 
     <groupId>com.github.ignition</groupId>
     <artifactId>ignition-remote-imageview</artifactId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.3</version>
 
-    <packaging>apklib</packaging>
+    <packaging>aar</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -45,15 +45,14 @@
 
         <plugins>
             <plugin>
-                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                <groupId>com.simpligility.maven.plugins</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>3.3.2</version>
+                <version>4.2.1</version>
                 <extensions>true</extensions>
                 <configuration>
                     <sdk>
                         <platform>${android.platform}</platform>
                     </sdk>
-                    <undeployBeforeDeploy>true</undeployBeforeDeploy>
                 </configuration>
             </plugin>
         </plugins>
